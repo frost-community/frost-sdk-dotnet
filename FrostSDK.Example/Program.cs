@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace FrostSDK.Example
@@ -12,7 +10,7 @@ namespace FrostSDK.Example
 			var apiUrl = "http://localhost:8000";
 			var accessToken = "set_your_access_token";
 
-			var requester = new HttpApiRequester(apiUrl);
+			var api = new RestApi(accessToken, apiUrl);
 
 			while (true)
 			{
@@ -20,16 +18,15 @@ namespace FrostSDK.Example
 				var text = Console.ReadLine();
 				if (text == "exit") break;
 
-				Console.Write("ポストを投稿しています...");
-				var res = await requester.RequestAsync(HttpMethod.Post, "/posts/post_status", accessToken, new Dictionary<string, string> { ["text"] = text + text });
-				if (res.StatusCode == 200)
+				try
 				{
-					Console.WriteLine("成功しました！");
+					Console.Write("ポストを投稿しています...");
+					var statusPost = await api.CreateStatusPost(text);
+					Console.WriteLine($"成功しました！ Text={statusPost.Text} CreatedAt={statusPost.CreatedAt}");
 				}
-				else
+				catch(Exception ex)
 				{
-					Console.WriteLine("失敗しました。。");
-					Console.WriteLine(res.ContentJson);
+					Console.WriteLine($"失敗しました: {ex.Message}");
 				}
 			}
 		}
