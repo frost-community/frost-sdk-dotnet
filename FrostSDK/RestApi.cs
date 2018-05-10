@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -66,6 +67,37 @@ namespace FrostSDK
 			var dic = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(res.ContentJson);
 
 			return StatusPost.FromJson(dic["postStatus"].ToString());
+		}
+
+		public async Task<List<IPost>> GetHomeTimeline(string userId, int? limit = null)
+		{
+			var parameters = new Dictionary<string, string>();
+			if (limit != null)
+				parameters.Add("limit", limit.ToString());
+			var res = await _Request(HttpMethod.Get, $"users/{userId}/timelines/home", parameters);
+
+			var dic = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(res.ContentJson);
+
+			// TODO: エラー処理
+
+			return dic["posts"].Select((postJToken) =>
+			{
+				var post = postJToken.ToObject<Dictionary<string, JToken>>();
+				var postType = post["type"].ToString();
+
+				IPost result;
+
+				if (postType == "status")
+					result = StatusPost.FromJson(postJToken.ToString());
+				else if (postType == "article")
+					throw new NotSupportedException("article post は未サポートです。");
+				else if (postType == "reference")
+					throw new NotSupportedException("reference post は未サポートです。");
+				else
+					throw new Exception("不明なタイプのポストが含まれています。");
+
+				return result;
+			}).ToList();
 		}
 	}
 }

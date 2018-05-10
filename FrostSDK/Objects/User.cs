@@ -15,7 +15,6 @@ namespace FrostSDK.Objects
 			return JsonConvert.DeserializeObject<User>(json);
 		}
 
-		[JsonProperty("id")]
 		public string Id { get; set; }
 
 		[JsonProperty("createdAt")]
@@ -23,13 +22,10 @@ namespace FrostSDK.Objects
 
 		public DateTime CreatedAt { get => Utility.ParseUnixTime(CreatedAtRaw); }
 
-		[JsonProperty("screenName")]
 		public string ScreenName { get; set; }
 
-		[JsonProperty("name")]
 		public string Name { get; set; }
 
-		[JsonProperty("description")]
 		public string Description { get; set; }
 	}
 }

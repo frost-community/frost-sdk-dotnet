@@ -3,7 +3,7 @@ using System;
 
 namespace FrostSDK.Objects
 {
-	public class StatusPost
+	public class StatusPost : IPost
 	{
 		private StatusPost() { }
 
@@ -15,7 +15,6 @@ namespace FrostSDK.Objects
 			return JsonConvert.DeserializeObject<StatusPost>(json);
 		}
 
-		[JsonProperty("id")]
 		public string Id { get; set; }
 
 		[JsonProperty("createdAt")]
@@ -23,10 +22,10 @@ namespace FrostSDK.Objects
 
 		public DateTime CreatedAt { get => Utility.ParseUnixTime(CreatedAtRaw); }
 
-		[JsonProperty("text")]
+		public string Type { get; set; }
+
 		public string Text { get; set; }
 
-		[JsonProperty("user")]
 		public User User { get; set; }
 	}
 }

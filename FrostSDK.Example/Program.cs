@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FrostSDK.Objects;
+using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FrostSDK.Example
@@ -7,26 +9,56 @@ namespace FrostSDK.Example
 	{
 		static async Task Main(string[] args)
 		{
-			var apiUrl = "http://localhost:8000";
 			var accessToken = "set_your_access_token";
+			var userId = "set_your_user_id";
+			var apiUrl = "http://localhost:8000";
 
-			var api = new RestApi(accessToken, apiUrl);
+			var frost = new RestApi(accessToken, apiUrl);
 
 			while (true)
 			{
-				Console.Write("投稿内容(exit=終了) > ");
-				var text = Console.ReadLine();
-				if (text == "exit") break;
+				Console.WriteLine("commands:");
+				Console.WriteLine("- post (message)");
+				Console.WriteLine("- timeline home");
+				Console.WriteLine("- exit");
+				Console.Write("> ");
+				var command = Console.ReadLine();
+				Console.WriteLine();
 
-				try
+				if (command.StartsWith("exit"))
 				{
-					Console.Write("ポストを投稿しています...");
-					var statusPost = await api.CreateStatusPost(text);
-					Console.WriteLine($"成功しました！ Text={statusPost.Text} CreatedAt={statusPost.CreatedAt}");
+					break;
 				}
-				catch(Exception ex)
+				else if (command.StartsWith("timeline home"))
 				{
-					Console.WriteLine($"失敗しました: {ex.Message}");
+					var timeline = await frost.GetHomeTimeline(userId);
+
+					Console.WriteLine("-- Timeline --");
+
+					foreach (var post in timeline)
+					{
+						var statusPost = post as StatusPost;
+						Console.WriteLine($"@{statusPost.User.ScreenName}さん - {statusPost.Text}");
+					}
+					Console.WriteLine();
+				}
+				else if (Regex.IsMatch(command, "^post .+"))
+				{
+					var message = Regex.Match(command, "^post (.+)").Groups[1].Value;
+					try
+					{
+						Console.Write("ポストを投稿しています...");
+						var statusPost = await frost.CreateStatusPost(message);
+						Console.WriteLine($"成功しました！ Text={statusPost.Text} CreatedAt={statusPost.CreatedAt}");
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine($"失敗しました: {ex.Message}");
+					}
+					Console.WriteLine();
+				}
+				else
+				{
 				}
 			}
 		}
