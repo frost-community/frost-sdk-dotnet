@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -9,6 +9,8 @@ namespace FrostSDK
 {
 	public class HttpRestApiRequester : IRestApiRequester
 	{
+		private const string ContentType = "application/json";
+
 		public HttpRestApiRequester(string apiUrl, HttpClient httpClient = null)
 		{
 			ApiUrl = new Uri(apiUrl);
@@ -31,15 +33,15 @@ namespace FrostSDK
 
 			if (!bodyMode)
 			{
-				var queryPairs = parameters.Select(p => HttpUtility.UrlEncode(p.Key) + "=" + HttpUtility.UrlEncode(p.Value));
+				var queryPairs = parameters.Select(p => $"{HttpUtility.UrlEncode(p.Key)}={HttpUtility.UrlEncode(p.Value)}");
 				var queryContent = string.Join("&", queryPairs);
-				query = "?" + queryContent;
+				query = $"?{queryContent}";
 			}
 
 			if (endpoint[0] == '/')
 				endpoint = endpoint.Remove(0, 1);
 
-			var request = new HttpRequestMessage(method, ApiUrl + endpoint + query);
+			var request = new HttpRequestMessage(method, new Uri(ApiUrl, $"{endpoint}{query}"));
 			foreach(var header in headers)
 			{
 				request.Headers.Add(header.Key, header.Value);
@@ -49,13 +51,13 @@ namespace FrostSDK
 			{
 				var bodyJson = Newtonsoft.Json.JsonConvert.SerializeObject(parameters);
 				request.Content = new StringContent(bodyJson);
-				request.Content.Headers.ContentType.MediaType = "application/json";
+				request.Content.Headers.ContentType.MediaType = ContentType;
 			}
 
 			var response = await _Http.SendAsync(request);
 			var responseJson = await response.Content.ReadAsStringAsync();
 
-			if (response.Content.Headers.ContentType.MediaType.ToLower() != "application/json")
+			if (response.Content.Headers.ContentType.MediaType.ToLower() != ContentType)
 			{
 				throw new Exception("response is not json format");
 			}
