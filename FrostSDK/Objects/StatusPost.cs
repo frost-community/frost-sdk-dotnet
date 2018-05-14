@@ -3,17 +3,9 @@ using System;
 
 namespace FrostSDK.Objects
 {
-	public class StatusPost : IPost
+	public class StatusPost : ApiObject<StatusPost>, IPost
 	{
 		private StatusPost() { }
-
-		/// <summary>
-		/// JSONデータからクラスのインスタンスを生成します。
-		/// </summary>
-		public static StatusPost FromJson(string json)
-		{
-			return JsonConvert.DeserializeObject<StatusPost>(json);
-		}
 
 		public string Id { get; set; }
 

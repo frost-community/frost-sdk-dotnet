@@ -43,13 +43,20 @@ namespace FrostSDK
 
 			if (res.StatusCode >= 500)
 			{
-				throw new Exception("サーバーエラー: " + res.ContentJson);
+				throw new Exception($"サーバーでエラーが発生しました({res.StatusCode}): {res.ContentJson}");
 			}
 			else if (res.StatusCode >= 400)
 			{
-				if (res.StatusCode == 401) throw new Exception("リクエストエラー: 認証に失敗しました");
-				if (res.StatusCode == 403) throw new Exception("リクエストエラー: アクセスが許可されていません");
-				else throw new Exception($"リクエストエラー({res.StatusCode}): " + res.ContentJson);
+				string message;
+				if (res.StatusCode == 401) message = "認証に失敗しました";
+				if (res.StatusCode == 403) message = "アクセスが許可されていません";
+				else
+				{
+					var error = Error.FromJson(res.ContentJson);
+					message = error.Message;
+				}
+
+				throw new Exception($"リクエストが不正です({res.StatusCode}): {message}");
 			}
 
 			return res;
