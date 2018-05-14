@@ -1,8 +1,8 @@
 ﻿namespace FrostSDK
 {
-	public class ApiResponse
+	public class RestApiResponse
 	{
-		public ApiResponse(int statusCode, string contentJson = null)
+		public RestApiResponse(int statusCode, string contentJson = null)
 		{
 			StatusCode = statusCode;
 			ContentJson = contentJson;

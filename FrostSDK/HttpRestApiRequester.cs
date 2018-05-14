@@ -7,11 +7,11 @@ using System.Web;
 
 namespace FrostSDK
 {
-	public class HttpApiRequester : IApiRequester
+	public class HttpRestApiRequester : IRestApiRequester
 	{
 		private const string ContentType = "application/json";
 
-		public HttpApiRequester(string apiUrl, HttpClient httpClient = null)
+		public HttpRestApiRequester(string apiUrl, HttpClient httpClient = null)
 		{
 			ApiUrl = new Uri(apiUrl);
 			_HttpHandler = new HttpClientHandler { UseCookies = false };
@@ -22,7 +22,7 @@ namespace FrostSDK
 		private HttpClientHandler _HttpHandler { get; set; }
 		public Uri ApiUrl { get; set; }
 
-		public async Task<ApiResponse> RequestAsync(HttpMethod method, string endpoint, string accessToken, Dictionary<string, string> parameters = null, Dictionary<string, string> headers = null)
+		public async Task<RestApiResponse> RequestAsync(HttpMethod method, string endpoint, string accessToken, Dictionary<string, string> parameters = null, Dictionary<string, string> headers = null)
 		{
 			var bodyMode = method != HttpMethod.Get && method != HttpMethod.Head;
 
@@ -62,7 +62,7 @@ namespace FrostSDK
 				throw new Exception("response is not json format");
 			}
 
-			return new ApiResponse((int)response.StatusCode, responseJson);
+			return new RestApiResponse((int)response.StatusCode, responseJson);
 		}
 	}
 }
